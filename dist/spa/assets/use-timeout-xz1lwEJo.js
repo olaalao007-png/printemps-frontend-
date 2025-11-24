@@ -1,0 +1,1 @@
+import{a8 as r,l as i,a9 as s,k as a}from"./index-DBPmXcyE.js";function m(){let e=null;const n=a();function t(){e!==null&&(clearTimeout(e),e=null)}return r(t),i(t),{removeTimeout:t,registerTimeout(o,u){t(),s(n)===!1&&(e=setTimeout(()=>{e=null,o()},u))}}}export{m as u};
