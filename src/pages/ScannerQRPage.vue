@@ -1,62 +1,62 @@
 <template>
-  <q-page class="q-pa-md">
-    <div class="row justify-center">
-      <div class="col-12 col-md-8 col-lg-6">
-        <q-card>
-          <q-card-section class="bg-primary text-white">
-            <div class="text-h5">Scanner un code QR</div>
-          </q-card-section>
+  <q-page style="background: white; min-height: 100vh;" class="q-pa-md">
+    <div style="max-width: 600px; margin: 0 auto;">
+      <q-card flat bordered>
+        <q-card-section style="background: #ff6600; color: white;">
+          <div class="text-h5 text-weight-bold">Scanner un code QR</div>
+        </q-card-section>
 
-          <q-card-section>
-            <div v-if="!scanning" class="text-center q-pa-lg">
-              <q-icon name="qr_code_scanner" size="100px" color="grey-5" class="q-mb-md" />
-              <div class="text-h6 text-grey-7 q-mb-md">
-                Scannez un code QR
-              </div>
+        <q-card-section>
+          <div v-if="!scanning" class="text-center q-pa-xl">
+            <q-icon name="qr_code_scanner" size="120px" color="grey-5" class="q-mb-lg" />
+            <div class="text-h6 text-weight-bold text-grey-7 q-mb-xl">
+              Scannez un code QR client
+            </div>
+            <q-btn
+              label="Démarrer le scan"
+              unelevated
+              size="lg"
+              icon="camera_alt"
+              @click="startScanning"
+              style="background: #ff6600; color: white; border-radius: 30px; padding: 12px 40px;"
+            />
+          </div>
+
+          <div v-else>
+            <div class="scanner-container q-mb-lg" style="border-radius: 12px; overflow: hidden;">
+              <video ref="videoElement" autoplay playsinline style="width: 100%; display: block;"></video>
+              <canvas ref="canvasElement" style="display: none;"></canvas>
+            </div>
+
+            <div class="text-center">
               <q-btn
-                label="Démarrer le scan"
-                color="primary"
-                size="lg"
-                icon="camera_alt"
-                @click="startScanning"
+                label="Arrêter"
+                unelevated
+                icon="stop"
+                @click="stopScanning"
+                style="background: #f44336; color: white; border-radius: 30px; padding: 10px 40px;"
               />
             </div>
+          </div>
 
-            <div v-else>
-              <div class="scanner-container q-mb-md">
-                <video ref="videoElement" autoplay playsinline></video>
-                <canvas ref="canvasElement" style="display: none;"></canvas>
-              </div>
+          <!-- Résultat -->
+          <q-banner v-if="scannedData" class="bg-positive text-white q-mt-lg" rounded>
+            <template v-slot:avatar>
+              <q-icon name="check_circle" size="md" />
+            </template>
+            <div class="text-weight-bold">Code QR détecté!</div>
+            <div class="text-caption q-mt-xs">Redirection en cours...</div>
+          </q-banner>
 
-              <div class="text-center">
-                <q-btn
-                  label="Arrêter le scan"
-                  color="negative"
-                  icon="stop"
-                  @click="stopScanning"
-                />
-              </div>
-            </div>
-
-            <!-- Résultat du scan -->
-            <q-banner v-if="scannedData" class="bg-positive text-white q-mt-md" rounded>
-              <template v-slot:avatar>
-                <q-icon name="check_circle" />
-              </template>
-              <div class="text-weight-bold">Code QR détecté!</div>
-              <div class="q-mt-sm">{{ scannedData }}</div>
-            </q-banner>
-
-            <!-- Erreur -->
-            <q-banner v-if="error" class="bg-negative text-white q-mt-md" rounded>
-              <template v-slot:avatar>
-                <q-icon name="error" />
-              </template>
-              {{ error }}
-            </q-banner>
-          </q-card-section>
-        </q-card>
-      </div>
+          <!-- Erreur -->
+          <q-banner v-if="error" class="bg-negative text-white q-mt-lg" rounded>
+            <template v-slot:avatar>
+              <q-icon name="error" size="md" />
+            </template>
+            {{ error }}
+          </q-banner>
+        </q-card-section>
+      </q-card>
     </div>
   </q-page>
 </template>
@@ -64,14 +64,14 @@
 <script>
 import { ref, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-//import { useQuasar } from 'quasar'
+import { useQuasar } from 'quasar'
 import jsQR from 'jsqr'
 
 export default {
   name: 'ScannerQRPage',
   setup() {
     const router = useRouter()
-    //const $q = useQuasar()
+    const $q = useQuasar()
     const scanning = ref(false)
     const scannedData = ref(null)
     const error = ref(null)
@@ -85,21 +85,68 @@ export default {
         error.value = null
         scannedData.value = null
         
+        // Vérifier si l'API est disponible
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          error.value = 'Votre navigateur ne supporte pas l\'accès à la caméra. Utilisez Chrome ou Safari.'
+          return
+        }
+
+        console.log('Requesting camera access...')
+
+        // Demander l'accès à la caméra arrière
         stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment' }
+          video: { 
+            facingMode: { ideal: 'environment' }, // Caméra arrière en priorité
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          },
+          audio: false
         })
+        
+        console.log('Camera access granted!')
         
         if (videoElement.value) {
           videoElement.value.srcObject = stream
+          videoElement.value.setAttribute('playsinline', true) // Important pour iOS
+          videoElement.value.play() // Forcer le démarrage
           scanning.value = true
           
           videoElement.value.onloadedmetadata = () => {
+            console.log('Video metadata loaded, starting scan...')
             scanQRCode()
           }
         }
       } catch (err) {
-        error.value = 'Impossible d\'accéder à la caméra. Veuillez vérifier les permissions.'
         console.error('Camera error:', err)
+        
+        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+          error.value = 'Accès à la caméra refusé. Autorisez l\'accès dans les paramètres de votre navigateur, puis rechargez la page.'
+        } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+          error.value = 'Aucune caméra trouvée sur cet appareil.'
+        } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+          error.value = 'La caméra est déjà utilisée par une autre application. Fermez les autres apps et réessayez.'
+        } else if (err.name === 'OverconstrainedError') {
+          // Réessayer sans contraintes
+          try {
+            stream = await navigator.mediaDevices.getUserMedia({
+              video: true,
+              audio: false
+            })
+            if (videoElement.value) {
+              videoElement.value.srcObject = stream
+              videoElement.value.setAttribute('playsinline', true)
+              videoElement.value.play()
+              scanning.value = true
+              videoElement.value.onloadedmetadata = () => {
+                scanQRCode()
+              }
+            }
+          } catch (e) {
+            error.value = 'Impossible d\'accéder à la caméra. Assurez-vous d\'utiliser HTTPS et d\'avoir autorisé l\'accès.'
+          }
+        } else {
+          error.value = `Erreur d'accès caméra: ${err.message}. Assurez-vous d\'utiliser HTTPS.`
+        }
       }
     }
 
@@ -122,10 +169,18 @@ export default {
           scannedData.value = code.data
           stopScanning()
           
-          // Si c'est un lien vers un formulaire, rediriger
+          // Rediriger vers le formulaire
           if (code.data.includes('/form/')) {
             const token = code.data.split('/form/')[1]
-            router.push(`/form/${token}`)
+            setTimeout(() => {
+              router.push(`/form/${token}`)
+            }, 1000)
+          } else {
+            $q.notify({
+              color: 'warning',
+              message: 'Code QR invalide',
+              icon: 'warning'
+            })
           }
           
           return
@@ -173,16 +228,6 @@ export default {
 .scanner-container {
   position: relative;
   width: 100%;
-  max-width: 500px;
-  margin: 0 auto;
-  border-radius: 8px;
-  overflow: hidden;
   background: #000;
-}
-
-.scanner-container video {
-  width: 100%;
-  height: auto;
-  display: block;
 }
 </style>
