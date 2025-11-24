@@ -1,12 +1,12 @@
-<!-- <template>
+<template>
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
         <q-btn flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
 
-        <q-toolbar-title> Quasar App </q-toolbar-title>
+        <q-toolbar-title> Printemps Register </q-toolbar-title>
 
-        <div>Quasar v{{ $q.version }}</div>
+        <div>App v{{ $q.version }}</div>
       </q-toolbar>
     </q-header>
 
@@ -24,7 +24,7 @@
   </q-layout>
 </template>
 
-<!--<script>
+<script>
 import { defineComponent, ref } from 'vue'
 import EssentialLink from 'components/EssentialLink.vue'
 
@@ -92,4 +92,4 @@ export default defineComponent({
     }
   },
 })
-</script> -->
+</script>
