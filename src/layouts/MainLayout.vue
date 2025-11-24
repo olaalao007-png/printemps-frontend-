@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
@@ -24,7 +24,7 @@
   </q-layout>
 </template>
 
-<script>
+<!--<script>
 import { defineComponent, ref } from 'vue'
 import EssentialLink from 'components/EssentialLink.vue'
 
@@ -92,4 +92,4 @@ export default defineComponent({
     }
   },
 })
-</script>
+</script> 
