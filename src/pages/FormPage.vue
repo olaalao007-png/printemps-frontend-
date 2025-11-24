@@ -1,13 +1,13 @@
 <template>
-  <q-page class="flex flex-center" style="background: linear-gradient(135deg, #ff6600 0%, #ff8833 100%); min-height: 100vh;">
+  <div class="flex flex-center" style="background: linear-gradient(135deg, #ff6600 0%, #ff8833 100%); min-height: 100vh; padding: 20px;">
     <q-card class="q-pa-md" style="width: 500px; max-width: 90vw;">
       <q-card-section class="text-center">
         <div class="text-h5 text-primary q-mb-md">Formulaire Client</div>
-        
-        <!-- Logo placeholder -->
+
+        <!-- Logo -->
         <div class="q-mb-lg">
           <q-img
-            src="/logo.png"
+            src="/printemps.png"
             style="height: 100px; max-width: 180px; margin: 0 auto;"
             fit="contain"
           />
@@ -28,8 +28,7 @@
               </label>
               <q-input
                 v-model="formData.nom"
-                outlined
-                dense
+                outlined dense
                 :rules="[val => !!val || 'Champ requis']"
                 bg-color="white"
               />
@@ -41,49 +40,42 @@
               </label>
               <q-input
                 v-model="formData.prenom"
-                outlined
-                dense
+                outlined dense
                 :rules="[val => !!val || 'Champ requis']"
                 bg-color="white"
               />
             </div>
 
             <div class="col-12">
-              <label class="text-grey-8 text-weight-medium" style="display: block; text-align: left; margin-bottom: 8px;">
+              <label class="text-grey-8 text-weight-medium">
                 Contact:
               </label>
               <q-input
                 v-model="formData.contact"
-                outlined
-                dense
-                type="tel"
+                outlined dense type="tel"
                 :rules="[val => !!val || 'Champ requis']"
                 bg-color="white"
               />
             </div>
 
             <div class="col-12">
-              <label class="text-grey-8 text-weight-medium" style="display: block; text-align: left; margin-bottom: 8px;">
+              <label class="text-grey-8 text-weight-medium">
                 Prestation:
               </label>
               <q-input
                 v-model="prestationInfo.prestation"
-                outlined
-                dense
-                readonly
+                outlined dense readonly
                 bg-color="grey-3"
               />
             </div>
 
             <div class="col-12">
-              <label class="text-grey-8 text-weight-medium" style="display: block; text-align: left; margin-bottom: 8px;">
+              <label class="text-grey-8 text-weight-medium">
                 Date:
               </label>
               <q-input
                 v-model="prestationInfo.date"
-                outlined
-                dense
-                readonly
+                outlined dense readonly
                 bg-color="grey-3"
               />
             </div>
@@ -96,8 +88,7 @@
               color="primary"
               class="full-width"
               size="lg"
-              rounded
-              unelevated
+              rounded unelevated
               :loading="loading"
               :disable="tokenError !== null"
             />
@@ -114,8 +105,9 @@
         </div>
       </q-card-section>
     </q-card>
-  </q-page>
+  </div>
 </template>
+
 
 <script>
 import { ref, onMounted } from 'vue'
